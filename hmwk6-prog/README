@@ -1,0 +1,43 @@
+Shanlongchaun Gu (sg3208)
+Andrew Kallem (ajk2214)
+Sihan Wang (sw2921)
+CS 4118 - Operating Systems
+Homework 6, Programming Problems
+
+
+Notes on our implementation:
+Our implementation modifies the ext3_inode_info struct in ext3 to include the GPS-related fields for the in-memory representation of the inode.  We use a simple spin-lock to synchronize access to these fields.
+
+To determine when to set the gps location on a file, we simply leverage the i_ctime (created time) and i_mtime (modified time) fields in the inode.  Whenever these fields are modified, we also set the gps location.  In this way, we can be sure that we set the gps location exactly as and when Linux considers an inode to be created or modified.
+
+When calculating the age of a GPS coordinate for an inode, we simply take the difference in CURRENT_TIME_SEC seconds at the time that GPS coordinate was provided and the CURRENT_TIME_SEC seconds at the time it was applied to the file.  We do not bother to also substract the nanoseconds field in the timespec struct, since at most we are off by one second, which we considered immaterial.
+
+We ran checkpatch.pl on all of the files we modified, but we only fixed checkpatch warnings/errors related to our own code, not pre-existing issues in those files.
+
+
+Sample output:
+Below we show the output when file_loc is run on each of the three sample files in our hmwk6.fs submission.  We created the files and directory at close the same location, so the GPS coordinates are only slightly different (see the final decimal places).  Note that we also conducted many other tests, including moving files and directories, renaming files and directories, etc., and did not encounter any problems.
+
+root@flo:/data/misc # ./file_loc hmwk6/file1
+Latitude: 40.808951
+Longitude: -73.959543
+Accuracy: 20.000000
+Age: 0
+root@flo:/data/misc # ./file_loc hmwk6/file2
+Latitude: 40.808946
+Longitude: -73.959553
+Accuracy: 20.000000
+Age: 1
+root@flo:/data/misc # ./file_loc hmwk6/dir1
+Latitude: 40.808945
+Longitude: -73.959536
+Accuracy: 20.343000
+Age: 1
+
+
+Notes on team collaboration:
+We did the vast majority of the coding as a team together in person.  You may notice that most of the commits are under Andrew's name, which is simply because we used his computer when we worked together in person.
+
+
+Citations:
+None
